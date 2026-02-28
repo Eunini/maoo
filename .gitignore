@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.DS_Store
+
+# Runtime outputs
+runtime/logs/*
+runtime/traces/*
+runtime/workspace/*
+runtime/sqlite/*.db
+runtime/sqlite/*.sqlite
+
+# Keep placeholders
+!runtime/logs/.gitkeep
+!runtime/traces/.gitkeep
+!runtime/workspace/.gitkeep
+!runtime/sqlite/.gitkeep

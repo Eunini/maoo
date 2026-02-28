@@ -1,0 +1,6 @@
+[
+  {"name": "happy", "request": "Fetch mock data and summarize"},
+  {"name": "calc", "request": "Calculate 2 + 2"},
+  {"name": "db", "request": "Query db and summarize"}
+]
+

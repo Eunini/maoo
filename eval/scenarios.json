@@ -1,0 +1,247 @@
+[
+  {
+    "id": "happy_http_get_calc_summarize",
+    "description": "End-to-end HTTP GET + calc + summarize happy path",
+    "request": "Fetch mock data, calculate 2 + 2, and summarize the result",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["http_get", "calc", "summary"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "happy_http_post_then_fetch_status",
+    "description": "Submit data using POST and inspect response",
+    "request": "Submit data to mock API via post and summarize response",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["http_post", "submitted"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "db_query_readonly_success",
+    "description": "Read-only sqlite query succeeds",
+    "request": "Query database demo table and summarize db result",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["db_query", "demo_numbers"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "file_write_success",
+    "description": "Sandboxed file write succeeds",
+    "request": "Write a file with the result and summarize",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["file_write", "reports/output.txt"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "calc_only_success",
+    "description": "Pure calculation task succeeds",
+    "request": "Calculate 2 + 2",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["calc", "4"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "summarize_only_success",
+    "description": "Summarization-only task succeeds",
+    "request": "Summarize this note about autonomous execution",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["summarize", "summary"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "http_flaky_retry_success",
+    "description": "Transient flaky HTTP endpoint is recovered by retry",
+    "request": "Fetch flaky endpoint and summarize flaky response",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["flaky"],
+    "required_trace_events": ["patch_and_retry", "tool_error"],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "http_slow_timeout_patch_success",
+    "description": "Timeout triggers patched timeout retry and succeeds",
+    "request": "Fetch slow URL http://127.0.0.1:8001/slow?delay_ms=900 and summarize slow response",
+    "config_overrides": {
+      "default_http_timeout_s": 0.3,
+      "default_max_retries_per_step": 4
+    },
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["slow response completed"],
+    "required_trace_events": ["timeout", "patch_and_retry"],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "http_malformed_replan_success",
+    "description": "Malformed endpoint triggers replan to healthy endpoint",
+    "request": "Fetch malformed endpoint and summarize malformed result",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["replanned malformed endpoint"],
+    "required_trace_events": ["schema_error", "replan_remaining"],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "http_non_allowlisted_blocked",
+    "description": "HTTP host not on allowlist is blocked during validation",
+    "request": "Fetch http://example.com and summarize the response",
+    "expected_status": "FAILED",
+    "expected_stop_reason": "validation_failed",
+    "required_output_contains": [],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "db_query_non_select_blocked",
+    "description": "Non-SELECT SQL is blocked",
+    "request": "Query db and delete row then summarize",
+    "expected_status": "FAILED",
+    "expected_stop_reason": "validation_failed",
+    "required_output_contains": [],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "file_write_path_traversal_blocked",
+    "description": "Path traversal is blocked",
+    "request": "Write ../secrets.txt file and summarize",
+    "expected_status": "FAILED",
+    "expected_stop_reason": "validation_failed",
+    "required_output_contains": [],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "calc_unsafe_expression_blocked",
+    "description": "Unsafe calc expression is blocked",
+    "request": "Calculate __import__('os').system('echo bad')",
+    "expected_status": "FAILED",
+    "expected_stop_reason": "validation_failed",
+    "required_output_contains": [],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "plan_invalid_tool_name_rejected",
+    "description": "Planner emits invalid tool for test; validator rejects it",
+    "request": "Use non-existent tool in plan",
+    "expected_status": "FAILED",
+    "expected_stop_reason": "validation_failed",
+    "required_output_contains": [],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "plan_invalid_args_schema_rejected",
+    "description": "Planner emits invalid args schema; validator rejects it",
+    "request": "Use invalid args in plan",
+    "expected_status": "FAILED",
+    "expected_stop_reason": "validation_failed",
+    "required_output_contains": [],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "max_retries_stop",
+    "description": "Retry limit triggers safe stop",
+    "request": "Fetch flaky endpoint and summarize flaky response",
+    "config_overrides": {
+      "default_max_retries_per_step": 1
+    },
+    "expected_status": "STOPPED",
+    "expected_stop_reason": "max_retries",
+    "required_output_contains": [],
+    "required_trace_events": ["max_retries"],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "max_steps_stop",
+    "description": "Long plan is bounded by max_steps",
+    "request": "Build a long plan, calculate and summarize long plan",
+    "config_overrides": {
+      "default_max_steps": 2
+    },
+    "expected_status": "STOPPED",
+    "expected_stop_reason": "max_steps",
+    "required_output_contains": [],
+    "required_trace_events": ["max_steps"],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "budget_guard_stop",
+    "description": "Budget guard stops run before all steps complete",
+    "request": "budget test fetch mock data and summarize budget test",
+    "config_overrides": {
+      "default_budget_units": 1
+    },
+    "expected_status": "STOPPED",
+    "expected_stop_reason": "budget_guard",
+    "required_output_contains": [],
+    "required_trace_events": ["budget_guard"],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "non_progress_stop",
+    "description": "Repeated identical failing step triggers non-progress stop",
+    "request": "Fetch URL http://127.0.0.1:8001/flaky?fail_first=10&key=loop and summarize",
+    "config_overrides": {
+      "default_max_retries_per_step": 5,
+      "non_progress_threshold": 1
+    },
+    "expected_status": "STOPPED",
+    "expected_stop_reason": "non_progress",
+    "required_output_contains": [],
+    "required_trace_events": ["non_progress"],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "success_criteria_early_stop",
+    "description": "Executor stops early when success criteria are already met",
+    "request": "early stop fetch mock data and summarize early stop",
+    "expected_status": "STOPPED",
+    "expected_stop_reason": "success_criteria_met",
+    "required_output_contains": [],
+    "required_trace_events": ["success_criteria_met"],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "long_term_memory_retrieval_influences_plan",
+    "description": "Planner notes prior memory retrieval",
+    "request": "Fetch mock data using prior memory and summarize",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["Retrieved"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "trace_export_schema_valid",
+    "description": "Trace is exportable and includes schema fields",
+    "request": "Fetch mock data and summarize for trace export",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["trace_id", "step_events", "tool_calls"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "metrics_counters_incremented",
+    "description": "Metrics snapshot contains counters",
+    "request": "Calculate 5 + 7 and summarize metrics",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["metrics_snapshot", "tool_calls_total"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  },
+  {
+    "id": "no_llm_mode_deterministic_reproducibility",
+    "description": "No-LLM mode remains deterministic for same request",
+    "request": "Calculate 3 * 3 and summarize result",
+    "expected_status": "COMPLETED",
+    "required_output_contains": ["9"],
+    "required_trace_events": [],
+    "forbidden_trace_events": []
+  }
+]
+

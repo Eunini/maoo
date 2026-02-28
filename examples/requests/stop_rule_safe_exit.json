@@ -1,0 +1,7 @@
+{
+  "request": "Fetch URL http://127.0.0.1:8001/flaky?fail_first=10&key=loop and summarize for malformed safe exit",
+  "context": {
+    "scenario": "stop_rule_safe_exit"
+  }
+}
+

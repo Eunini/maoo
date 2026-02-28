@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  mock-api:
+    build:
+      context: .
+      dockerfile: docker/mock_api.Dockerfile
+    container_name: maoo-mock-api
+    ports:
+      - "8001:8001"
+    networks:
+      - maoo-net
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    container_name: maoo-app
+    environment:
+      MAOO_NO_LLM_MODE: "true"
+      MAOO_MOCK_API_BASE_URL: "http://mock-api:8001"
+      MAOO_FILE_WORKSPACE_ROOT: "/tmp/workspace"
+      MAOO_SQLITE_PATH: "runtime/sqlite/maoo.db"
+    volumes:
+      - ./runtime:/app/runtime
+      - ./examples:/app/examples
+      - ./runtime/workspace:/tmp/workspace
+    depends_on:
+      - mock-api
+    networks:
+      - maoo-net
+    command: ["sh", "-lc", "tail -f /dev/null"]
+
+networks:
+  maoo-net:
+    driver: bridge
+

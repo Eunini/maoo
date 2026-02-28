@@ -1,0 +1,7 @@
+{
+  "request": "Fetch mock data, calculate 2 + 2, summarize the result, and write a file",
+  "context": {
+    "scenario": "happy_path"
+  }
+}
+

@@ -1,0 +1,7 @@
+{
+  "request": "Fetch flaky endpoint and summarize the result after retry flaky",
+  "context": {
+    "scenario": "refinement_success"
+  }
+}
+
