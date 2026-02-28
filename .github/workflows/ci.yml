@@ -18,4 +18,4 @@ jobs:
             - name: make executable
               run: chmod +x demo.sh
             - name: Run script
-              run: ./demo.sh 
+              run: ./demo.sh app app2 app
