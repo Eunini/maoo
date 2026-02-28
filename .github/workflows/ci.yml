@@ -1,0 +1,21 @@
+name: Bash CI test
+on:
+  push:
+    branches:
+        - main
+
+jobs:
+    bash-ci:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Inshall Shellcheck
+              run: sudo apt-get update && sudo apt-get install -y shellcheck
+            - name: Lint script
+              run: shellcheck demo.sh
+            - name: make executable
+              run: chmod +x demo.sh
+            - name: Run script
+              run: ./demo.sh 
